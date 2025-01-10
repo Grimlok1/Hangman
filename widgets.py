@@ -1,6 +1,21 @@
 import pygame
 import func
 
+class Button: #button parent class
+    def __init__(self, rect, texture): #texture or surface
+        self.rect = rect
+
+    def hover(self):
+        pass
+    def on_click(self):
+        pass
+    def update(self):
+        pass
+    def draw(self):
+        pass
+
+
+
 class TextButton:
     def __init__(self, screen, text, size, pos,  on_click, anchor_point = "center"):
         self.screen = screen

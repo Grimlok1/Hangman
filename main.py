@@ -3,7 +3,7 @@ import func
 import states as st
 
 pygame.init()
-screen = pygame.display.set_mode((800, 400))
+screen = pygame.display.set_mode((800, 600)) # 800, 400 old
 running = True
 
 state_machine = st.Game(screen)

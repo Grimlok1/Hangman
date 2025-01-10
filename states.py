@@ -156,6 +156,8 @@ class Play(State):
         super().__init__(state_machine)
 
         self.screen = self.state_machine.screen
+        bg = pygame.image.load("tausta1.png")
+        self.bg = bg.convert()
 
         basic_font = pygame.font.Font(None, 32)
         box = pygame.Rect(0,0, 30, 30)
@@ -201,7 +203,7 @@ class Play(State):
 
 
     def draw(self):
-        self.screen.fill("yellow") #bg
+        self.screen.blit(self.bg, (0,0)) #background
         self.hidden_word.blit(self.screen)
         self.alphabet.blit(self.screen)
         self.score.blit(self.screen)
