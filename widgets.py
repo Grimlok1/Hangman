@@ -2,7 +2,7 @@ import pygame
 import func
 
 class TextButton:
-    def __init__(self, screen, text, size, pos,  on_click, anchor_point = "center",):
+    def __init__(self, screen, text, size, pos,  on_click, anchor_point = "center"):
         self.screen = screen
         
         normal_font = pygame.font.Font(None, size)
@@ -21,7 +21,7 @@ class TextButton:
         
         self.rect = self.normal_rect ##
         self.surf = self.normal_surf #
-        
+
     def process(self):
         mouse_pos = pygame.mouse.get_pos()
         if self.rect.collidepoint(mouse_pos):
@@ -35,6 +35,17 @@ class TextButton:
             
     def blit(self):
         self.screen.blit(self.surf, self.rect)
+
+class TextButton2:
+    def __init__(self, text, font, rect, on_click):
+        self.text = text
+        self.font = font
+        self.rect = rect
+        self.on_click = on_click
+
+    def render(self):
+        self.surf = self.font.render(self.text, False, "black")
+        self.surf.get_rect()
 
 class Button:
     def __init__(self, text, font, box):
@@ -110,17 +121,53 @@ class Letter:
 
 
 class Text:
-    def __init__(self, text, font, color, pos):
+    def __init__(self, text, font, color, pos, anchor_point = "center"):
         self.text = text
         self.font = font
         self.color = color
-        self.surf = self.font.render(text, False, color)
-        self.rect = self.surf.get_rect(pos=center)
+        self.anchor_point = anchor_point
+        self.pos = pos
+        self.render()
+
+    def render(self):
+        self.surf = self.font.render(self.text, False, self.color)
+        self.rect = self.surf.get_rect()
+        setattr(self.rect, self.anchor_point, self.pos) #set position
+
 
     def blit(self, screen):
         screen.blit(self.surf, self.rect)
 
+class BlinkingText(Text):
+    def __init__(self, blink_rate, timer):
+        super().__init__(self, text, font, color, pos)
+        self.blink_rate = blink_rate
+        self.frame_count = 0
+        self.visible = True
+        self.blink = True
+        self.timer = False
 
+    def blink(self):
+        self.frame_count += 1
+        if self.frame_count >= 30:
+            self.visible = not self.visible #toggle visible
+            self.frame_count = 0
+
+    def stop(self):
+        self.blinking = False
+        self.visible = True
+
+    def set_timer(self):
+        self.timer = Timer(10, self.stop)
+
+    def start_timer(self):
+        self.timer.start()
+
+    def blit(self, screen):
+        timer.update()
+        if self.blinking:
+            self.blink()
+        screen.blit(self.surf, self.rect)
 
 class Line:
     def __init__(self, color, start_pos, end_pos, width=1):
@@ -279,6 +326,27 @@ class Hangman:
     def blit(self, screen):
         for line in self.draw_lines:
             line.draw(screen)
+            
 
+class Timer:
+    def __init__(self, duration, callback):
+        self.duration = duration * 1000 #convert to milliseconds
+        self.callback = callback
+        self.start_time = None
+        self.running = False
+
+    def start(self):
+        self.start_time = pygame.time.get_ticks()
+        self.running = True
+
+    def stop(self):
+        self.running = False
+
+    def update(self):
+        if self.running == True:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.start_time >= self.duration: #if time is up stop the clock
+                self.stop()
+                self.callback()
 
 
