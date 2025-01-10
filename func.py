@@ -1,9 +1,9 @@
-import random
-from words import mylist
-    
+from random_word import RandomWords
+
 def get_word():
-    word = random.choice(mylist)
-    return word
+    # return one random word 
+    r = RandomWords()
+    return r.get_random_word()
 
 def find_all(original_list, value):
     # Find all indices of a specific value (e.g., 2)
