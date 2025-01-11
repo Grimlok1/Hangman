@@ -1,18 +1,42 @@
 import pygame
 import func
+from enum import Enum
+from abc import ABC, abstractmethod
 
-class Button: #button parent class
-    def __init__(self, rect, texture): #texture or surface
-        self.rect = rect
+class ButtonState(Enum):
+    NORMAL = 1
+    HOVER = 2
+    CLICKED = 3
+
+class Button1: #Abstract button class
+    def __init__(self, texture):
+        self.texture = texture
+        self.rect = texture.get_rect()
+        self.state = ButtonState.NORMAL
 
     def hover(self):
-        pass
+        self.state = ButtonState.HOVER
+
     def on_click(self):
-        pass
-    def update(self):
-        pass
-    def draw(self):
-        pass
+        self.state = ButtonState.CLICKED
+
+    def normal(self):
+        self.state = ButtonState.NORMAL
+
+    def update(self): #only checks collission with normal texture
+
+        mouse_pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(mouse_pos):
+            self.hover()
+            if pygame.mouse.get_pressed(num_buttons=3)[0]:
+                self.on_click()
+        else:
+            self.normal() #return to normal
+
+
+    def draw(self, screen):
+        screen.blit(self.texture, self.rect)
+        
 
 
 
