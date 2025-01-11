@@ -13,6 +13,8 @@ class MainMenu(State):
     def __init__(self, state_machine):
         super().__init__(state_machine)
         self.screen = self.state_machine.screen
+        pygame.mixer.music.load('make_mix.mp3')
+        pygame.mixer.music.play(-1)
         def play():
             self.state_machine.transition_state("Play")
         def credit():
