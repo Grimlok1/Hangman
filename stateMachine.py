@@ -15,12 +15,16 @@ class StateMachine:
         
     def transition_state(self, state):
         self.state = self.states[state]
+        self.state.transition_state()
 
 class State:
     def __init__(self, state_machine):
         self.state_machine = state_machine  # Store reference to the state machine
         
     def handle_event(self, event):
+        pass
+
+    def transition_state(self): #fired when you first transison to statet
         pass
 
     def update(self):

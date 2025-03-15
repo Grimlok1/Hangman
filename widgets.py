@@ -1,321 +1,146 @@
 import pygame
-import func
-
-class Button: #button parent class
-    def __init__(self, rect, texture): #texture or surface
-        self.rect = rect
-
-    def hover(self):
-        pass
-    def on_click(self):
-        pass
-    def update(self):
-        pass
-    def draw(self):
-        pass
-
-
-
-class TextButton:
-    def __init__(self, screen, text, size, pos,  on_click, anchor_point = "center"):
-        self.screen = screen
-        
-        normal_font = pygame.font.Font(None, size)
-        hover_font = pygame.font.Font(None, size + 10)
-        
-        self.on_click = on_click
-        
-        self.normal_surf = normal_font.render(text, False, "black")
-        self.hover_surf = hover_font.render(text, False, "white")
-        
-        self.normal_rect = self.normal_surf.get_rect()
-        self.hover_rect = self.hover_surf.get_rect()
-        
-        setattr(self.normal_rect, anchor_point, pos)
-        self.hover_rect.center = self.normal_rect.center
-        
-        self.rect = self.normal_rect ##
-        self.surf = self.normal_surf #
-
-    def process(self):
-        mouse_pos = pygame.mouse.get_pos()
-        if self.rect.collidepoint(mouse_pos):
-            self.rect = self.hover_rect
-            self.surf = self.hover_surf
-            if pygame.mouse.get_pressed(num_buttons=3)[0]:
-                self.on_click()
-        else:
-            self.rect = self.normal_rect
-            self.surf = self.normal_surf
-            
-    def blit(self):
-        self.screen.blit(self.surf, self.rect)
-
-class TextButton2:
-    def __init__(self, text, font, rect, on_click):
-        self.text = text
-        self.font = font
-        self.rect = rect
-        self.on_click = on_click
-
-    def render(self):
-        self.surf = self.font.render(self.text, False, "black")
-        self.surf.get_rect()
-
-class Button:
-    def __init__(self, text, font, box):
-        self.box_color = "white"
-        self.text = text
-        self.font = font
-        self.box = box
-        self.active = True
-        self.surf = self.font.render(text, False, "black")
-        self.text_rect = self.surf.get_rect(center=box.center)
-
-    def is_pressed(self):
-        self.box_color = "white" #reset color
-        is_pressed = False
-
-        mouse_pos = pygame.mouse.get_pos()
-        if self.box.collidepoint(mouse_pos):
-            self.box_color = "green" #hover color
-            if pygame.mouse.get_pressed(num_buttons=3)[0]:
-                is_pressed = True 
-        return is_pressed
-
-    def deactivate(self):
-        self.active = False
-        self.box_color = "white"
-
-    def activate(self):
-        self.active = True
-        self.box_color = "white"
-
-
-    def blit(self, screen):
-        screen.fill(self.box_color, self.box)
-        screen.blit(self.surf, self.text_rect)
-        if self.active == False:
-            pygame.draw.line(screen, "red", self.box.topleft, self.box.bottomright, 5)
+from engine import *
+from func import get_word
 
 class Score:
-    def __init__(self, font, pos, anchor_point="center"):
+    def __init__(self, font, pos, alignment="center"):
         self.score = 0
+        self.multiplier = 50
         self.font = font
         self.pos = pos
-        self.anchor_point = anchor_point
+        self.alignment = alignment
 
         self.surf = None
         self.rect = None
 
         self.render() #render score
-        
-    def add_score(self, score):
-        self.score += score
+
+    def score_guess(self, num_of_correct_letters):
+        self.score += num_of_correct_letters * self.multiplier
         self.render()
 
     def render(self):
         self.surf = self.font.render(f"SCORE: {self.score}", False, "black")
         self.rect = self.surf.get_rect()
-        setattr(self.rect, self.anchor_point, self.pos) #set position
+        setattr(self.rect, self.alignment, self.pos) #set position
 
-
-    def blit(self, screen):
+    def draw(self, screen):
         screen.blit(self.surf, self.rect)
-
-
-
-class Letter:
-    def __init__(self, letter, font, box, visible=True):
-        self.letter = letter
-        self.font = font
-        self.box = box
-        self.visible = visible
-        self.letter_surf = font.render(letter, False, "black")
-        self.letter_rect = self.letter_surf.get_rect(center=box.center) 
-
-
-class Text:
-    def __init__(self, text, font, color, pos, anchor_point = "center"):
-        self.text = text
-        self.font = font
-        self.color = color
-        self.anchor_point = anchor_point
-        self.pos = pos
-        self.render()
-
-    def render(self):
-        self.surf = self.font.render(self.text, False, self.color)
-        self.rect = self.surf.get_rect()
-        setattr(self.rect, self.anchor_point, self.pos) #set position
-
-
-    def blit(self, screen):
-        screen.blit(self.surf, self.rect)
-
-class BlinkingText(Text):
-    def __init__(self, blink_rate, timer):
-        super().__init__(self, text, font, color, pos)
-        self.blink_rate = blink_rate
-        self.frame_count = 0
-        self.visible = True
-        self.blink = True
-        self.timer = False
-
-    def blink(self):
-        self.frame_count += 1
-        if self.frame_count >= 30:
-            self.visible = not self.visible #toggle visible
-            self.frame_count = 0
-
-    def stop(self):
-        self.blinking = False
-        self.visible = True
-
-    def set_timer(self):
-        self.timer = Timer(10, self.stop)
-
-    def start_timer(self):
-        self.timer.start()
-
-    def blit(self, screen):
-        timer.update()
-        if self.blinking:
-            self.blink()
-        screen.blit(self.surf, self.rect)
-
-class Line:
-    def __init__(self, color, start_pos, end_pos, width=1):
-        self.color = color
-        self.start_pos = start_pos
-        self.end_pos = end_pos
-        self.width = width 
-
-    def draw(self, surf):
-        pygame.draw.line(surf, self.color, self.start_pos, self.end_pos, self.width)
-
-class Circle:
-    def __init__(self, color, center, radius, width=1):
-        self.color = color
-        self.center = center
-        self.radius = radius
-        self.width = width
-
-    def draw(self, surf):
-        pygame.draw.circle(surf, self.color, self.center, self.radius, self.width)
-
-class MultilineText:
-    def __init__(self, screen, text, font, color, pos):
-        lines = text.splitlines()
-        self.lines = []
-        self.screen = screen
-        x, y = pos
-        linesize = font.get_linesize()
-        for line in lines:
-            surf = font.render(line, False, color)
-            rect = surf.get_rect(center=(x, y))
-            l = (surf, rect)
-            self.lines.append(l)
-            y += linesize
-    def blit(self):
-        for line in self.lines:
-            self.screen.blit(line[0], line[1])
 
 class Alphabet:
-    def __init__(self, font, box, pos, anchor_point="center"):
-        self.pos = pos
-        self.font = font
-        self.box = box
+    def __init__(self, pos, textures, text_surfaces, callback, alignment="center"):
+        self.callback = callback
         self.buttons = []
-        alphabet = ["A","B","C","D","E","F","G","H",
+        self.alphabet = ["A","B","C","D","E","F","G","H",
         "I","J","K","L","M","N","O","P","Q","R","S",
         "T","U","V","W","X","Y","Z"]
+        gap = 10
+        width_inc = 30 + gap
+        height_inc = 30 + gap
 
-        width_inc = box.w + 10
-        height_inc = box.h + 10
-
-        x = 13 * width_inc - 10
-        y = 2  * height_inc - 10
-        self.rect = pygame.Rect((0, 0),(x, y)) #create a rectangle that can fit the entire Alphabet
-        setattr(self.rect, anchor_point, pos) #set position
+        x = 13 * width_inc - gap
+        y = 2  * height_inc - gap
+        self.rect = pygame.Rect(pos, (x, y)) #create a rectangle that can fit the entire Alphabet
+        setattr(self.rect, alignment, pos)  # set rect position
 
         row = 0
         i = 0
-        for letter in alphabet:
+
+        for letter in self.alphabet:
             if i == 13:
-                row = row + 1
+                row += 1 # 
                 i = 0
-            button = Button(text=letter, font=font, box=pygame.Rect((self.rect.x + width_inc * i, self.rect.y + height_inc * row),(self.box.w, self.box.h)))
+            button = TextureButton((self.rect.x + width_inc * i, self.rect.y + height_inc * row), letter, textures, text_surfaces)
             self.buttons.append(button)
-            i = i + 1
-
+            i += 1
+            
     def reset_buttons(self):
-        print("reset buttons")
         for button in self.buttons:
-            button.active = True
+            button.state = "normal"
 
+    def update(self):
+        for button in self.buttons:
+            button.update()
+            if button.state == "clicked":
+                self.callback(button)
+                break
 
-
-    def blit(self, screen):
+    def draw(self, screen):
         #screen.fill("red", self.rect)
         for button in self.buttons:
-            button.blit(screen)
+            button.draw(screen)
       
+
+class HiddenLetter:
+    def __init__(self, x, y, char):
+        font = pygame.font.Font(None, 20)
+        self.char = char
+        self.visible = False
+        self.rect = pygame.rect.Rect(x, y, 30, 30)
+        self.letter = Text1(char, font, "black")
+        self.letter.rect.center = self.rect.center # center char
+
+    def draw(self, screen):
+        screen.fill("white", self.rect)
+        if self.visible:
+            screen.blit(self.letter.surf, self.letter.rect)
 
 
 class HiddenWord:
-    def __init__(self, box, font, pos, anchor_point="center"):
-        self.pos = pos
-        self.anchor_point = anchor_point
-        self.font = font
-        self.box = box
-        self.word = None
+    def __init__(self, w, h, pos, alignment="center"):
+        self.counter = None
         self.hidden_letters = []
-        self.width_inc = self.box.w + 10
+        self.word = None
         self.rect = None
-        self.counter = 0 #count how many letters are visible
+        self.pos = pos
+        self.alignment = alignment
+        self.w = w
+        self.h = h
+        self.width_inc = self.w + 10
         self.new_word()
             
     def new_word(self):
-        self.hidden_letters = [] #clear hidden_letters
         self.counter = 0 #clear counter
-        self.word = func.get_word() #get new hidden word
+        self.word = get_word() #get new hidden word
+        print(self.word)
 
         w = len(self.word) * self.width_inc - 10
-        h = self.box.h
 
-        self.rect = pygame.Rect((0,0),(w, h)) #create a rectangle that can fit the entire word
-        setattr(self.rect, self.anchor_point, self.pos) #set rect position
+        self.rect = pygame.Rect((0,0),(w, self.h)) #create a rectangle that can fit the entire word
+        setattr(self.rect, self.alignment, self.pos) #set rect position
 
         for  i, letter in enumerate(self.word): #create hidden letters
-            self.hidden_letters.append(Letter(box=pygame.Rect((self.rect.x + self.width_inc * i, self.rect.y),(self.box.w, self.box.h)), font=self.font, letter=letter, visible=False))
+            hidden_letter = HiddenLetter(self.rect.w + self.width_inc * i, self.rect.h, letter)
+            self.hidden_letters.append(hidden_letter)
         
-    def blit(self, screen):
-        for letter in self.hidden_letters:
-            screen.fill("white", letter.box) #fill the box, blit letter if visible
-            if letter.visible == True:
-                screen.blit(letter.letter_surf, letter.letter_rect)
-                
-    def guess_letter(self, guess): #update score
-        value = 0
-        for letter in self.hidden_letters:
-            if letter.visible == True:
-                value += 1
-            elif letter.letter == guess:
-                letter.visible = True
-                value += 1
-        if value == len(self.word): #word was fully revealed
-            score_word()
+    def draw(self, screen):
+        for hidden_letter in self.hidden_letters:
+            hidden_letter.draw(screen)
+
+    def guess_letter(self, guess):
+        fully_revealed = False
+        new_list = []
+        guessed_letters = 0
+        for hidden_letter in self.hidden_letters:
+            if hidden_letter.char == guess:
+                hidden_letter.visible = True
+                guessed_letters += 1
+            else: #function does need to iterate over letters that are visible
+                new_list.append(hidden_letter)
+            self.hidden_letters = new_list
+        if not self.hidden_letters:
+            fully_revealed = True
+        return guessed_letters, fully_revealed
 
 class Hangman:
-    def __init__(self, rect, pos, surf, anchor_point="center"):
-        self.rect = rect
+    def __init__(self, pos, alignment="center"):
+        self.rect = pygame.rect.Rect((0,0),(200, 200))
         self.pos = pos
-        self.anchor_point = anchor_point
-        self.surf = surf
-        self.counter = 0
-        setattr(self.rect, self.anchor_point, self.pos) #set position
-        self.line_data = [Line("black", self.rect.bottomleft, self.rect.topleft, 5),
+        self.alignment = alignment
+        self.current_line_index = 0
+        setattr(self.rect, self.alignment, self.pos) #set position
+
+        self.hangman_lines = [Line("black", self.rect.bottomleft, self.rect.topleft, 5),
         Line("black", (self.rect.x, self.rect.y + 150), (self.rect.x + 200, self.rect.y + 150), 5),
         Line("black", (self.rect.x + 200, self.rect.y + 150), (self.rect.x + 200, self.rect.y + 200), 5),
         Line("black", (self.rect.x, self.rect.y), (self.rect.x + 125, self.rect.y), 5),
@@ -328,40 +153,31 @@ class Hangman:
         Line("black", (self.rect.x + 125, self.rect.y + 75), (self.rect.x + 105, self.rect.y + 90), 6),
         Line("black", (self.rect.x + 125, self.rect.y + 75), (self.rect.x + 145, self.rect.y + 90), 6),
         ]
-        self.draw_lines = []
+        self.visible_lines = []
 
     def add_line(self):
-        self.draw_lines.append(self.line_data[self.counter])
-        self.counter += 1
+        self.visible_lines.append(self.hangman_lines[self.current_line_index])
+        self.current_line_index += 1
+        if self.current_line_index == len(self.hangman_lines):
+            game_over = True
+            return game_over
 
     def reset_lines(self):
-        self.counter = 0
-        self.draw_lines = []
+        self.current_line_index = 0
+        self.visible_lines = []
 
-    def blit(self, screen):
-        for line in self.draw_lines:
+    def draw(self, screen):
+        for line in self.visible_lines:
             line.draw(screen)
-            
 
-class Timer:
-    def __init__(self, duration, callback):
-        self.duration = duration * 1000 #convert to milliseconds
-        self.callback = callback
-        self.start_time = None
-        self.running = False
+#SETTINGS
 
-    def start(self):
-        self.start_time = pygame.time.get_ticks()
-        self.running = True
+class Settings(resource_manager):
+    def __init__(self, state, pos, text_surfaces, alignment="topleft"):
+        self.state = state
 
-    def stop(self):
-        self.running = False
-
-    def update(self):
-        if self.running == True:
-            current_time = pygame.time.get_ticks()
-            if current_time - self.start_time >= self.duration: #if time is up stop the clock
-                self.stop()
-                self.callback()
-
-
+        super().__init__((300, 200), pos, alignment)
+        btn1 = TextButton((self.rect.centerx, self.rect.y + 20), "Main Menu", text_surfaces, "center", self.state.main_menu)
+        btn2 = TextButton((self.rect.centerx, self.rect.y + 80), "Continue", text_surfaces, "center", self.state.close_menu)
+        self.buttons.append(btn1)
+        self.buttons.append(btn2)

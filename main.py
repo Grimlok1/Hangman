@@ -1,17 +1,21 @@
+import sys
+
 import pygame
-import func
-import states as st
+from engine import StateMachine
+from game_states import *
 
 pygame.init()
 screen = pygame.display.set_mode((800, 600)) # 800, 400 old
 running = True
 
-state_machine = st.Game(screen)
+state_machine = Game(screen)
 states = {
-        "Play": st.Play(state_machine),
-        "Main menu" : st.MainMenu(state_machine),
-        "Credits" : st.Credits(state_machine),
-        "High score" : st.HighScore(state_machine)
+        "play": Play(state_machine),
+        "main_menu" : MainMenu(state_machine),
+        "credits" : Credits(state_machine),
+        "high_score" : HighScore(state_machine),
+        "game_over" : Game_over(state_machine),
+        "settings" : Settings(state_machine)
         }
 state_machine.states = states
 state_machine.state = states["Main menu"] #set starting state
